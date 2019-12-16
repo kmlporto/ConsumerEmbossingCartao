@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  processing:
+    build: .
+    environment: 
+      - ROUTING_KEY=processing
+    networks: 
+      - microservices
+
+  # send:
+  #   build: .
+  #   environment: 
+  #     - ROUTING_KEY=send
+  #   networks: 
+  #     - microservices
+
+networks: 
+  microservices:
+    external: 
+      name: network_microservices
