@@ -13,6 +13,7 @@ connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 EXCHANGE_NAME = 'embossing'
 EXCHANGE_TYPE = 'direct'
 ROUTING_KEY = os.getenv('ROUTING_KEY')
+print(ROUTING_KEY)
 channel = connection.channel()
 channel.exchange_declare(
     exchange=EXCHANGE_NAME,

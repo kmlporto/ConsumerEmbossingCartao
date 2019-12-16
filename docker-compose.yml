@@ -2,18 +2,20 @@ version: "3"
 
 services:
   processing:
-    build: .
-    environment: 
+    build:
+      context: .
+      args: 
       - ROUTING_KEY=processing
     networks: 
       - microservices
 
-  # send:
-  #   build: .
-  #   environment: 
-  #     - ROUTING_KEY=send
-  #   networks: 
-  #     - microservices
+  send:
+    build:
+      context: .
+      args: 
+        - ROUTING_KEY=send
+    networks: 
+      - microservices
 
 networks: 
   microservices:
