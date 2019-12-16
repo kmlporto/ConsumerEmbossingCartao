@@ -1,20 +1,43 @@
 import pika
 import json
+import os
+
 
 def consumer_callback(ch, method, properties, body):
     cartoes = json.loads(body)
-    print('tam',len(cartoes))
     print(cartoes)
-    # for cartao in cartoes:
-    #     print(cartao)
-    #     # print('Numero:', cartao[0], 'Nome do Portador:', cartao[1], 'Validade:', cartao[2], 'Codigo de Seguranca:', cartao[4])
 
 
-connection = pika.BlockingConnection(pika.ConnectionParameters())
+connection = pika.BlockingConnection(pika.ConnectionParameters(host='rabbitmq'))
 
-nome_fila = 'analiseCartao'
+EXCHANGE_NAME = 'embossing'
+EXCHANGE_TYPE = 'direct'
+ROUTING_KEY = os.getenv('ROUTING_KEY')
+print(ROUTING_KEY)
 channel = connection.channel()
-channel.queue_declare(queue=nome_fila, durable=True)
-channel.basic_consume(on_message_callback=consumer_callback, queue=nome_fila, auto_ack=True)
+channel.exchange_declare(
+    exchange=EXCHANGE_NAME,
+    exchange_type=EXCHANGE_TYPE,
+)
+
+result = channel.queue_declare(queue='', durable=True)
+queue_name = result.method.queue
+
+channel.queue_bind(
+    exchange=EXCHANGE_NAME,
+    queue=queue_name,
+    routing_key= ROUTING_KEY,
+)
+
+if ROUTING_KEY == 'processing':
+    print("Entregar o cartão ao cliente logo após o cadastro na loja.")
+else:
+    print("Enviar cartões na residência após embossing.")
+channel.basic_consume(
+    queue=queue_name,
+    on_message_callback=consumer_callback,
+    auto_ack=True
+)
+
 
 channel.start_consuming()
